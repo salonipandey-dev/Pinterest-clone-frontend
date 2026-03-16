@@ -72,66 +72,12 @@ body{
     padding:20px;
 }
 
-.grid{
-    column-count:5;
-    column-gap:16px;
-}
+.logo {
+    font-size: large;
+    color:red;
+    text-decoration:none;
+    font-weight:bold;
+    font-family : san-serif;
 
-.pin-card{
-    break-inside:avoid;
-    margin-bottom:16px;
-    border-radius:16px;
-    overflow:hidden;
-    background:#fff;
-    cursor:pointer;
-    position:relative;
-}
 
-.pin-card img{
-    width:100%;
-    display:block;
-}
-
-.pin-info{
-    position:absolute;
-    top:10px;
-    right:10px;
-}
-
-.save-button{
-    background:#e60023;
-    color:#fff;
-    border:none;
-    padding:8px 14px;
-    border-radius:20px;
-    font-size:13px;
-    opacity:0;
-    transition:0.2s ease;
-}
-
-.pin-card:hover .save-button{
-    opacity:1;
-}
-
-.pin-description{
-    padding:10px;
-    font-size:14px;
-}
-
-@media (max-width:1200px){
-    .grid{
-        column-count:4;
-    }
-}
-
-@media (max-width:900px){
-    .grid{
-        column-count:3;
-    }
-}
-
-@media (max-width:600px){
-    .grid{
-        column-count:2;
-    }
 }
