@@ -4,7 +4,7 @@ A frontend clone of Pinterest built using **HTML, CSS, and JavaScript**. This pr
 
 ---
 
-## 🚀 Features
+## Features
 
 * **Masonry/Grid Layout:** Dynamic pin layout styled to mimic Pinterest's signature feed.
 * **Responsive Design:** Adapts seamlessly across desktop, tablet, and mobile viewports.
@@ -13,7 +13,7 @@ A frontend clone of Pinterest built using **HTML, CSS, and JavaScript**. This pr
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 * **HTML5:** Semantic markup and structure.
 * **CSS3:** Styling, Flexbox/Grid layouts, and responsive design.
@@ -21,7 +21,7 @@ A frontend clone of Pinterest built using **HTML, CSS, and JavaScript**. This pr
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 ```text
 ├── Frontend-js/       # Additional frontend assets or JS components
