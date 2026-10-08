@@ -145,7 +145,7 @@ function createCard(pin) {
   card.dataset.id = pin.id;
   card.innerHTML = `
     <div class="pin-img-wrap">
-      <img class="pin-img" src="${pin.img}&auto=format&fit=crop" alt="${pin.title}" loading="lazy"/>
+      <img class="pin-img" src="${escapeHTML(pin.img)}" alt="${escapeHTML(pin.title)}" loading="lazy"/>
       <div class="pin-overlay"></div>
       <div class="card-actions">
         <button class="save-card-btn${saved?" saved":""}" data-id="${pin.id}">${saved?"Saved":"Save"}</button>
@@ -155,10 +155,10 @@ function createCard(pin) {
       </div>
     </div>
     <div class="pin-meta">
-      <p class="pin-title">${pin.title}</p>
+      <p class="pin-title">${escapeHTML(pin.title)}</p>
       <div class="pin-user">
-        <img class="pin-user-img" src="${pin.avatar}" alt="${pin.user}" loading="lazy"/>
-        <span class="pin-user-name">${pin.user}</span>
+        <img class="pin-user-img" src="${escapeHTML(pin.avatar)}" alt="${escapeHTML(pin.user)}" loading="lazy"/>
+        <span class="pin-user-name">${escapeHTML(pin.user)}</span>
         <span class="pin-likes">
           <i class="fa-solid fa-heart" style="color:var(--red);font-size:.7rem;"></i>
           ${formatCount(pin.likes + (liked ? 1 : 0))}
@@ -275,7 +275,7 @@ function openPinModal(pin) {
   state.currentPin = pin;
   const saved = state.savedPins.has(pin.id);
 
-  $("#modalImage").src       = pin.img + "&auto=format&fit=crop&w=800";
+  $("#modalImage").src       = pin.img;
   $("#modalTitle").textContent  = pin.title;
   $("#modalDesc").textContent   = pin.desc;
   $("#modalUserAvatar").src  = pin.avatar;
