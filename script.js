@@ -49,12 +49,15 @@ const SAMPLE_COMMENTS = [
 /* ==========================================
    STATE
    ========================================== */
+function readSaved(key) { try { const v=JSON.parse(localStorage.getItem(key)||"[]"); return Array.isArray(v)?v:[]; } catch { return []; } }
+function persistSaved(key, values) { try { localStorage.setItem(key,JSON.stringify([...values])); } catch {} }
+function escapeHTML(value) { return String(value).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 const state = {
   activeCategory: "all",
   searchQuery:    "",
-  savedPins:      new Set(),
-  likedPins:      new Set(),
-  followedUsers:  new Set(),
+  savedPins:      new Set(readSaved('pinspire-saved')),
+  likedPins:      new Set(readSaved('pinspire-liked')),
+  followedUsers:  new Set(readSaved('pinspire-followed')),
   page:           0,
   pageSize:       12,
   loading:        false,
@@ -126,7 +129,7 @@ function filteredPins() {
 function showToast(msg, type = "", icon = "fa-circle-check") {
   const t = document.createElement("div");
   t.className = `toast ${type}`;
-  t.innerHTML = `<i class="fa-solid ${icon}"></i> ${msg}`;
+  t.textContent = msg;
   DOM.toastContainer.appendChild(t);
   setTimeout(() => t.remove(), 2600);
 }
@@ -237,6 +240,7 @@ function toggleSave(pin, btn) {
     btn.classList.add("saved");
     showToast("Saved to your board!", "success", "fa-bookmark");
   }
+  persistSaved("pinspire-saved", state.savedPins);
   /* sync modal save btn */
   if (state.currentPin && state.currentPin.id === pin.id) {
     const msb = $("#modalSaveBtn");
@@ -257,6 +261,7 @@ function toggleLike(pin, btn, countEl) {
     /* heart burst micro-animation */
     btn.animate([{transform:"scale(1.5)"},{transform:"scale(1)"}],{duration:250});
   }
+  persistSaved("pinspire-liked", state.likedPins);
   if (countEl) {
     const likes = pin.likes + (state.likedPins.has(pin.id) ? 1 : 0);
     countEl.innerHTML = `<i class="fa-solid fa-heart" style="color:var(--red);font-size:.7rem;"></i> ${formatCount(likes)}`;
@@ -421,6 +426,7 @@ $("#modalFollowBtn").addEventListener("click", () => {
     btn.classList.add("following");
     showToast(`Following ${user}!`, "success", "fa-user-plus");
   }
+  persistSaved("pinspire-followed", state.followedUsers);
 });
 
 /* tag pills */
@@ -446,7 +452,7 @@ function sendComment() {
     <img src="https://i.pravatar.cc/32?img=47" alt="You"/>
     <div class="comment-bubble">
       <p class="comment-name">You</p>
-      <p class="comment-text">${text}</p>
+      <p class="comment-text">${escapeHTML(text)}</p>
     </div>
   `;
   $("#modalComments").appendChild(item);
@@ -469,6 +475,7 @@ DOM.createUpload.addEventListener("click", () => DOM.fileInput.click());
 DOM.fileInput.addEventListener("change", (e) => {
   const file = e.target.files[0];
   if (!file) return;
+  if (!file.type.startsWith("image/") || file.size > 5*1024*1024) { showToast("Choose an image smaller than 5MB", "error"); return; }
   const reader = new FileReader();
   reader.onload = (ev) => {
     DOM.previewImage.src = ev.target.result;
@@ -504,7 +511,14 @@ DOM.publishBtn.addEventListener("click", () => {
   const board = $("#pinBoard").value;
   if (!title) { showToast("Please add a title", "error", "fa-exclamation"); return; }
   if (board === "Choose a board") { showToast("Please choose a board", "error", "fa-exclamation"); return; }
-  showToast(`Pin published to "${board}"!`, "success", "fa-check");
+  if (!DOM.previewImage.src.startsWith("data:image/")) { showToast("Upload an image first", "error"); return; }
+  const pin = { id:Date.now(),title,desc:$("#pinDesc").value.trim(),category:"art",img:DOM.previewImage.src,user:"You",avatar:"https://i.pravatar.cc/40?img=47",likes:0,tags:[board.toLowerCase()] };
+  PINS_DATA.unshift(pin);
+  state.activeCategory="all"; state.searchQuery="";
+  DOM.searchInput.value="";
+  $(".cat-pill").forEach(p=>p.classList.toggle("active",p.dataset.cat==="all"));
+  renderCards(false);
+  showToast("Pin published in this browser session!", "success");
   closeCreateModal();
   /* reset form */
   ["pinTitle","pinDesc","pinLink"].forEach(id => { const el = $(` #${id}`); if(el) el.value = ""; });
@@ -541,7 +555,7 @@ DOM.backTop.addEventListener("click", () => window.scrollTo({ top: 0, behavior: 
    ========================================== */
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") { closePinModal(); closeCreateModal(); }
-  if (e.key === "/" && document.activeElement !== DOM.searchInput) {
+  if (e.key === "/" && !["INPUT","TEXTAREA"].includes(document.activeElement.tagName)) {
     e.preventDefault();
     DOM.searchInput.focus();
   }
